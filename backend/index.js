@@ -23,12 +23,19 @@ app.use(cors(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-    res.send("ShopNest Backend is working properly");
-});
+// Serve frontend static files first
+const buildPath = path.join(__dirname, '../frontend/build');
+try {
+  if (require('fs').existsSync(buildPath)) {
+    app.use(express.static(buildPath));
+  } else {
+    console.warn('Frontend build not found at:', buildPath);
+  }
+} catch (err) {
+  console.warn('Frontend build directory error:', err.message);
+}
 
-
-
+// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes')); 
@@ -36,19 +43,11 @@ app.use('/api/payment', require('./routes/paymentRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 // app.use('/api/cart', require('./routes/cartRoutes'));
 
-// Serve frontend in production
-const buildPath = path.join(__dirname, '../frontend/build');
-try {
-  if (require('fs').existsSync(buildPath)) {
-    app.use(express.static(buildPath));
-    app.use((req, res) => {
-      res.sendFile(path.join(buildPath, 'index.html'));
-    });
-  } else {
-    console.warn('Frontend build not found at:', buildPath);
-  }
-} catch (err) {
-  console.warn('Frontend build directory error:', err.message);
+// Fallback: serve frontend index.html for all other routes
+if (require('fs').existsSync(buildPath)) {
+  app.use((req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
 }
 
 
