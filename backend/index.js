@@ -37,14 +37,20 @@ app.use('/api/analytics', require('./routes/analyticsRoutes'));
 // app.use('/api/cart', require('./routes/cartRoutes'));
 
 // Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  const buildPath = path.join(__dirname, '../frontend/build');
-  app.use(express.static(buildPath));
-  
-  app.use((req, res) => {
-    res.sendFile(path.join(buildPath, 'index.html'));
-  });
+const buildPath = path.join(__dirname, '../frontend/build');
+try {
+  if (require('fs').existsSync(buildPath)) {
+    app.use(express.static(buildPath));
+    app.use((req, res) => {
+      res.sendFile(path.join(buildPath, 'index.html'));
+    });
+  } else {
+    console.warn('Frontend build not found at:', buildPath);
+  }
+} catch (err) {
+  console.warn('Frontend build directory error:', err.message);
 }
+
 
 
 const PORT = process.env.PORT || 5000;
