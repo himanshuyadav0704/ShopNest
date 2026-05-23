@@ -10,9 +10,7 @@
     "install-all": "cd backend && npm install && cd ../frontend && npm install",
     "build" : "cd frontend && npm run build",
     "start": "cd backend && npm Start",
-    
-    "dev:server": "cd backend && npm run dev",
-    "dev:client": "cd frontend && npm run dev",
+  
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "start:backend": "npm --prefix backend run dev",
     "start:frontend": "npm --prefix frontend run dev"
